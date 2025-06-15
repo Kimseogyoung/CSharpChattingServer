@@ -1,25 +1,89 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <meta charset="UTF-8">
+  <title>WebSocket Long Message Test</title>
+</head>
 <body>
-<h2>WebSocket Chat</h2>
-<input id="messageInput" type="text" placeholder="메시지를 입력하세요" />
-<button onclick="sendMessage()">전송</button>
-<ul id="messages"></ul>
+  <h2>WebSocket 메시지 테스트</h2>
 
-<script>
-    const socket = new WebSocket("ws://localhost:5089/ws");
+  <label>👤 사용자 ID: </label>
+  <input type="text" id="userIdInput" placeholder="userId 입력" style="width:200px;">
+  <button onclick="connect()">🔌 Connect</button>
+  <button onclick="disconnect()">❌ Disconnect</button>
+  <br><br>
 
-    socket.onmessage = (event) => {
-        const li = document.createElement("li");
-        li.textContent = event.data;
-        document.getElementById("messages").appendChild(li);
-    };
+  <input type="text" id="msgInput" placeholder="메시지를 입력하세요" style="width:300px;">
+  <button onclick="sendMessage()">📤 Send</button>
+  <br><br>
+
+  <button onclick="sendLongMessage()">📦 Send 5KB Message</button>
+  <pre id="log" style="background:#eee; padding:10px; max-height:300px; overflow-y:scroll;"></pre>
+
+  <script>
+    let socket;
+
+    function log(text) {
+      const pre = document.getElementById('log');
+      pre.textContent += text + "\n";
+      pre.scrollTop = pre.scrollHeight;
+    }
+
+    function connect() {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        log("⚠ 이미 연결되어 있음");
+        return;
+      }
+
+      const userId = document.getElementById("userIdInput").value.trim();
+      if (!userId) {
+        log("❗ userId를 입력하세요");
+        return;
+      }
+
+      socket = new WebSocket(`ws://localhost:5089/ws?userId=${encodeURIComponent(userId)}`);
+
+      socket.onopen = () => log("✅ 연결됨");
+      socket.onmessage = (event) => log("📨 서버 응답: " + event.data);
+      socket.onclose = () => log("❌ 연결 종료");
+      socket.onerror = (err) => log("⚠ 오류 발생: " + err);
+    }
+
+    function disconnect() {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close(1000, "Client disconnect");
+        log("🛑 연결 종료 요청함");
+      } else {
+        log("⚠ 연결되어 있지 않음");
+      }
+    }
 
     function sendMessage() {
-        const input = document.getElementById("messageInput");
-        socket.send(input.value);
-        input.value = "";
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        log("❗ 연결되지 않음");
+        return;
+      }
+
+      const message = document.getElementById('msgInput').value;
+      if (message.trim() === "") {
+        log("⚠ 빈 메시지는 전송되지 않음");
+        return;
+      }
+
+      socket.send(message);
+      log("📤 전송: " + message);
     }
-</script>
+
+    function sendLongMessage() {
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        log("❗ 연결되지 않음");
+        return;
+      }
+
+      const longMessage = "X".repeat(5120);
+      socket.send(longMessage);
+      log("📤 5KB 메시지 전송됨 (길이: " + longMessage.length + ")");
+    }
+  </script>
 </body>
 </html>
