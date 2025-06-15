@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>WebSocket Chat</h2>
+<input id="messageInput" type="text" placeholder="메시지를 입력하세요" />
+<button onclick="sendMessage()">전송</button>
+<ul id="messages"></ul>
+
+<script>
+    const socket = new WebSocket("ws://localhost:5089/ws");
+
+    socket.onmessage = (event) => {
+        const li = document.createElement("li");
+        li.textContent = event.data;
+        document.getElementById("messages").appendChild(li);
+    };
+
+    function sendMessage() {
+        const input = document.getElementById("messageInput");
+        socket.send(input.value);
+        input.value = "";
+    }
+</script>
+</body>
+</html>
