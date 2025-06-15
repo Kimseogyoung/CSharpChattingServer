@@ -25,9 +25,11 @@ C# ASP.Net 서버에서 WebSocket 기반 채팅 또는 알림 서비스를 구�
 
 실행
 ![img1](Img/WebSocketHtmlTest.png)
+<br>
+TODO: 멀티스레드 고려
 
 ## Socket
-
+TODO: 구현중
 
 
 ## Redis PUB/SUB
