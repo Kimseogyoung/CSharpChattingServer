@@ -67,14 +67,7 @@ namespace Server
                             {
                                 var messageBytes = messageBuffer.ToArray();
                                 var message = Encoding.UTF8.GetString(messageBytes);
-
-                                var sendMessage = $"[Echo] {message}";
-                                Console.WriteLine(sendMessage);
-                                var sendBuffer = Encoding.UTF8.GetBytes(sendMessage);
-                                foreach (var ws in _userIdWebSocketDict.Values.Where(w => w.State == WebSocketState.Open))
-                                {
-                                    await ws.SendAsync(new ArraySegment<byte>(sendBuffer), WebSocketMessageType.Text, true, CancellationToken.None);
-                                }
+                                await OnMessageAsync(message);
                             }
                         }
                         break;
@@ -94,6 +87,18 @@ namespace Server
                         }
                         break;
                 }
+            }
+        }
+
+        private async Task OnMessageAsync(string message)
+        {
+            var sendMessage = $"[Echo] {message}";
+            Console.WriteLine(sendMessage);
+
+            var sendBuffer = Encoding.UTF8.GetBytes(sendMessage);
+            foreach (var ws in _userIdWebSocketDict.Values.Where(w => w.State == WebSocketState.Open))
+            {
+                await ws.SendAsync(new ArraySegment<byte>(sendBuffer), WebSocketMessageType.Text, true, CancellationToken.None);
             }
         }
 
