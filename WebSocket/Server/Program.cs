@@ -1,16 +1,20 @@
 ﻿using Server;
 using System.Net.WebSockets;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<ChatService>();
+builder.Services.AddSingleton<RedisPubSubService>();
 
 var app = builder.Build();
 
-var webSocketConnections = new List<WebSocket>();
-app.UseWebSockets();
+// Redis 연결
+var chatSvc = app.Services.GetRequiredService<ChatService>();
+chatSvc.Init();
 
-app.MapGet("/", () => "Hello World!");
+var webSocketConnections = new List<WebSocket>();
+app.UseWebSockets(); // 웹소켓 활성화
+
+app.MapGet("/", () => "This is ChattingServer");
 
 app.Map("/ws", async context =>
 {

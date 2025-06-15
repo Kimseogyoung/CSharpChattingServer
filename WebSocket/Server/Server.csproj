@@ -6,4 +6,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\GitWorks\WebsocketChattingServer\WebSocket\Server\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="D:\GitWorks\WebsocketChattingServer\WebSocket\Server\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" Version="2.8.41" />
+  </ItemGroup>
+
 </Project>

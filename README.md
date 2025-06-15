@@ -22,4 +22,39 @@
 | **Redis 채널**   | `chat/room1`, `user/123` 등 주제 기반 메시지 구분 |
 
 
+실행
+![img1](Img/WebSocketHtmlTest.png)
+
 ## Socket
+
+
+
+## Redis PUB/SUB
+1. 구독중인 채널 보기
+```
+PUBSUB CHANNELS
+
+127.0.0.1:6379> PUBSUB CHANNELS
+1) "chat/world"
+2) "chat/guild"
+```
+
+2. 채널에 연결된 Subscriber 수 보기
+```
+PUBSUB NUMSUB channel1 channel2 ...
+127.0.0.1:6379> PUBSUB NUMSUB chat/world chat/guild
+1) "chat/world"
+2) (integer) 3
+3) "chat/guild"
+4) (integer) 1
+```
+
+3. 패턴 기반 구독
+```
+PSUBSCRIBE <pattern>
+```
+
+4. 메시지 발행
+```
+PUBLISH chat/world "Hello subscribers!"
+```
