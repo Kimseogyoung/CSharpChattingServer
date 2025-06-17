@@ -5,7 +5,8 @@
 
 ---
 ## WebSocket
-멀티 인스턴스 환경에서 WebSocket 기반 채팅 또는 알림 서비스를 구성할 때, Redis Pub/Sub를 사용해 서버 간 메시지를 중계하는 구조
+C# ASP.Net 서버에서 WebSocket 기반 채팅 또는 알림 서비스를 구성함. 
+<br>멀티 인스턴스 환경에서 Redis Pub/Sub를 사용해 서버 간 메시지를 중계하는 구조
 
 ```
 1. Server → Redis (Subscribe)
@@ -24,9 +25,11 @@
 
 실행
 ![img1](Img/WebSocketHtmlTest.png)
+<br>
+TODO: 멀티스레드 고려
 
 ## Socket
-
+TODO: 구현중
 
 
 ## Redis PUB/SUB
