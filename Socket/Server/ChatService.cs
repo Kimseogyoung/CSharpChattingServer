@@ -14,18 +14,15 @@ namespace Server
 {
     public class ChatService
     {
-        public ChatService(RedisPubSubService redisPubSubService)
+        public ChatService(SessionService sessionService, RedisPubSubService redisPubSubService, ISocketSender sender)
         {
+            _sessionService = sessionService;
             _redisPubSubService = redisPubSubService;
-        }
-
-        public void Init(Action<ulong, byte[]> onRecvMsg)
-        {
-            _onRecvMsg = onRecvMsg;
             _redisPubSubService.Connect(new List<string>() { "127.0.0.1:6379", "127.0.0.1:6379" });
+            _sender = sender;
         }
 
-        public async Task<byte[]> ProcessMessageAsync(ulong userId, EChatAction action, string channel, string message)
+        public async Task ProcessMessageAsync(string sessionId, ulong userId, EChatAction action, string channel, string message)
         {
             Log(ELogLevel.DEBUG, userId, $"ProcessMessageStart Action({action}) Msg({message})");
 
@@ -33,9 +30,11 @@ namespace Server
             {
                 case EChatAction.REGISTER_USER:
                     {
+                        _sessionService.AuthenticateSession(sessionId, userId);
                         var chatRes = new ChatResPacket { Message = $"REGISTER ({userId})" };
                         var bytes = ProtocolParser.Serialize(chatRes); ;
-                        return bytes;
+                        _sender.AddSendQueue(sessionId, bytes);
+                        break;
                     }
                 case EChatAction.SUBSCRIBE:
                     {
@@ -56,8 +55,6 @@ namespace Server
                     Log(ELogLevel.ERROR, userId, $"NO_HANDLING_ACTION({action})");
                     break;
             }
-
-            return null;
         }
 
         private void Subcribe(ulong userId, string channel)
@@ -126,11 +123,12 @@ namespace Server
 
             Log(ELogLevel.INFO, 0, $"PublishToClient Channel({channel}) Msg({message})");
             var chatRes = new ChatResPacket { Message = message };
-            var json = ProtocolParser.Serialize(chatRes);
+            var bytes = ProtocolParser.Serialize(chatRes);
 
             foreach (var userId in userIdSet)
             {
-                _onRecvMsg?.Invoke(userId, json);
+                var session = _sessionService.GetSessionByUserId(userId);
+                _sender.AddSendQueue(session.Id, bytes);
             }
         }
 
@@ -148,8 +146,9 @@ namespace Server
             ERROR = 4,
         }
 
+        private readonly SessionService _sessionService;
         private readonly RedisPubSubService _redisPubSubService;
-        private Action<ulong, byte[]>? _onRecvMsg = null;
+        private readonly ISocketSender _sender;
         private ConcurrentDictionary<string, HashSet<ulong>> _subscribeChannelUserIdDict = new ConcurrentDictionary<string, HashSet<ulong>>();
     }
 }
