@@ -30,7 +30,7 @@ TODO: 멀티스레드 고려
 
 ## Socket
 TODO: 구현중
-
+![img1](Img/20250629_SocketClientTest.png)
 
 ## Redis PUB/SUB
 1. 구독중인 채널 보기

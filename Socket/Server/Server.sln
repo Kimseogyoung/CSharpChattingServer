@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36203.30 d17.14
+VisualStudioVersion = 17.14.36203.30
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server.csproj", "{75D845F0-77D8-4D3B-B727-8ABA94FE368F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Protocol", "..\Protocol\Protocol.csproj", "{CAA0A597-9AE9-F52F-A9D1-1172EEFC57F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{75D845F0-77D8-4D3B-B727-8ABA94FE368F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75D845F0-77D8-4D3B-B727-8ABA94FE368F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75D845F0-77D8-4D3B-B727-8ABA94FE368F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAA0A597-9AE9-F52F-A9D1-1172EEFC57F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAA0A597-9AE9-F52F-A9D1-1172EEFC57F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAA0A597-9AE9-F52F-A9D1-1172EEFC57F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAA0A597-9AE9-F52F-A9D1-1172EEFC57F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,6 +6,7 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddHostedService<Worker>();
 
 // 서비스 DI 등록
+builder.Services.AddSingleton<SocketService>();
 builder.Services.AddSingleton<ChatService>();
 builder.Services.AddSingleton<RedisPubSubService>();
 

@@ -5,8 +5,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Security.AccessControl;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Protocol;
 
 namespace Server
 {
@@ -17,51 +19,45 @@ namespace Server
             _redisPubSubService = redisPubSubService;
         }
 
-        public void Init(Action<string> onRecvMsg)
+        public void Init(Action<ulong, byte[]> onRecvMsg)
         {
             _onRecvMsg = onRecvMsg;
             _redisPubSubService.Connect(new List<string>() { "127.0.0.1:6379", "127.0.0.1:6379" });
         }
 
-        public async Task ProcessMessageAsync(ulong userId, string originMessage)
+        public async Task<byte[]> ProcessMessageAsync(ulong userId, EChatAction action, string channel, string message)
         {
-            Log(ELogLevel.DEBUG, userId, $"ProcessMessageStart ({originMessage})");
+            Log(ELogLevel.DEBUG, userId, $"ProcessMessageStart Action({action}) Msg({message})");
 
-            // 예제이므로 문자열 파싱으로 통신
-            var splitArr = originMessage.Split(":");
-            var command = splitArr[0];
-            if (originMessage.Count() == command.Count())
+            switch (action)
             {
-                return;
-            }
-
-            var msg = originMessage.Substring(command.Count() + 1);
-
-            switch (command)
-            {
-                case "subscribe":
+                case EChatAction.REGISTER_USER:
                     {
-                        var channel = splitArr[1];
+                        var chatRes = new ChatResPacket { Message = $"REGISTER ({userId})" };
+                        var bytes = ProtocolParser.Serialize(chatRes); ;
+                        return bytes;
+                    }
+                case EChatAction.SUBSCRIBE:
+                    {
                         Subcribe(userId, channel);
                     }
                     break;
-                case "unsubscribe":
+                case EChatAction.UNSUBSCRIBE:
                     {
-                        var channel = splitArr[1];
                         Unsubcribe(userId, channel);
                     }
                     break;
-                case "publish":
+                case EChatAction.SEND:
                     {
-                        var channel = splitArr[1];
-                        var sendMsg = msg.Substring(channel.Count() + 1);
-                        await PublishMsgAsync(userId, channel, sendMsg);
+                        await PublishMsgAsync(userId, channel, message);
                     }
                     break;
                 default:
-                    Log(ELogLevel.ERROR, userId, $"NO_HANDLING_COMMAND({command})");
+                    Log(ELogLevel.ERROR, userId, $"NO_HANDLING_ACTION({action})");
                     break;
             }
+
+            return null;
         }
 
         private void Subcribe(ulong userId, string channel)
@@ -128,11 +124,13 @@ namespace Server
                 return;
             }
 
-            //var sendBuffer = Encoding.UTF8.GetBytes(message);
             Log(ELogLevel.INFO, 0, $"PublishToClient Channel({channel}) Msg({message})");
+            var chatRes = new ChatResPacket { Message = message };
+            var json = ProtocolParser.Serialize(chatRes);
+
             foreach (var userId in userIdSet)
             {
-                _onRecvMsg?.Invoke(message);
+                _onRecvMsg?.Invoke(userId, json);
             }
         }
 
@@ -151,7 +149,7 @@ namespace Server
         }
 
         private readonly RedisPubSubService _redisPubSubService;
-        private Action<string>? _onRecvMsg = null;
+        private Action<ulong, byte[]>? _onRecvMsg = null;
         private ConcurrentDictionary<string, HashSet<ulong>> _subscribeChannelUserIdDict = new ConcurrentDictionary<string, HashSet<ulong>>();
     }
 }
